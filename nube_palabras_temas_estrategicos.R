@@ -38,13 +38,33 @@ data_long_palabras <- data_long %>%
 palabras_a_borrar <- stopwords("spanish")
 
 data_long_palabras_limpia <- data_long_palabras %>% 
-  subset(!PALABRAS%in%palabras_a_borrar)
+  subset(!PALABRAS%in%palabras_a_borrar) %>% 
+  subset(nchar(PALABRAS)>3)
 
 # finalmente creamos una matriz con la cuenta de la frequencia de las palabras
 data_long_palabras_limpia_matriz <- data_long_palabras_limpia   %>% 
   count(PALABRAS, sort=TRUE)
         
 # creamos nube #############
+
+# para pintar por temas
+
+
+data_long_palabras_limpia_matriz <- data_long_palabras_limpia_matriz %>% 
+  mutate(COLOR = ifelse(str_detect(PALABRAS, "forest|suelo|susten|ambient|nat|incend|agua|sostenib|clim|contamin"),
+                       "green",
+                       ifelse(str_detect(PALABRAS, "camb|desarroll"),
+                             "orange",
+                             ifelse(str_detect(PALABRAS, "trabaj|recurs|actividades|agricultura|product|econom|producc"),
+                                    "red",
+                                    ifelse(str_detect(PALABRAS, "local|bariloch|regi|territ"),
+                                           "blue",
+                                           ifelse(str_detect(PALABRAS, "cient|análisis|tecn|estud|educ|cult|invest"),
+                                                  "violet",
+                                                  ifelse(str_detect(PALABRAS, "social|human|salud"),
+                                                         "yellow",
+                                           "black")))))))
+                                                               
 
 # simple 
 
@@ -56,7 +76,8 @@ wordcloud::wordcloud(words = data_long_palabras_limpia_matriz$PALABRAS,
                      max.words=200, 
                      random.order=FALSE, 
                      rot.per=0.35,            
-                     colors="blue")
+                     colors=data_long_palabras_limpia_matriz$COLOR,
+                     ordered.colors = T)
 
 
 # separado por institucion. queda feo porque son demasiadas instituciones
